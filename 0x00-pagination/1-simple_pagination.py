@@ -36,7 +36,10 @@ class Server:
         return self.__dataset
 
     def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
+        """  method named get_page that takes two integer arguments page """
         self.dataset()
+        if len(self.__dataset) == 0:
+            return[]
         assert type(page) == int and type(page_size) == int
         assert page > 0 and page_size > 0
         ind_debut, index_end = index_range(page, page_size)
