@@ -1,19 +1,12 @@
 #!/usr/bin/env python3
-"""0x00. Pagination"""
+"""
+Deletion-resilient hypermedia pagination
+"""
 
 import csv
 import math
-from typing import List
-
-
-def index_range(page: int, page_size: int) -> (int, int):
-    """ function named index_range that takes two integer arguments
-        page and page_size.
-    """
-    if page == 1:
-        return (0, page_size)
-
-    return ((page-1) * page_size, (page - 1) * page_size + page_size)
+from operator import indexOf
+from typing import List, Dict
 
 
 class Server:
@@ -48,8 +41,34 @@ class Server:
         return self.__indexed_dataset
 
     def get_hyper_index(self, index: int = None, page_size: int = 10) -> Dict:
-        """ 
-            a get_hyper_index method with two integer arguments: index with a None
-            default value and page_size with default value of 10.
         """
-        pass
+        return a dictionary with the following key-value pairs:
+        index: the current start index of the return page.
+        That is the index of the first item in the current page.
+
+        next_index: the next index to query with. That should be
+        the index of the first item after the last item on the current page.
+
+        page_size: the current page size
+
+        data: the actual page of the dataset
+        """
+        assert index < len(self.__indexed_dataset)
+        if not index:
+            index = 0
+        data = []
+        new_index = index
+        while True:
+            try:
+                valid = self.__indexed_dataset[new_index]
+                break
+            except KeyError:
+                new_index += 1
+        for idx in range(new_index, new_index + page_size):
+            data.append(self.__indexed_dataset[idx])
+        return {
+            'index': index,
+            'next_index': new_index + page_size,
+            'page_size': page_size,
+            'data': data
+        }
