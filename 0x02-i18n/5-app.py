@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Simple Flask Application"""
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, g
 from flask_babel import Babel
+
 
 #@babel.localeselector
 def get_locale():
@@ -16,6 +17,34 @@ def get_locale():
 app = Flask(__name__)
 
 babel = Babel(app, locale_selector=get_locale)
+
+users = {
+    1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
+    2: {"name": "Beyonce", "locale": "en", "timezone": "US/Central"},
+    3: {"name": "Spock", "locale": "kg", "timezone": "Vulcan"},
+    4: {"name": "Teletubby", "locale": None, "timezone": "Europe/London"},
+}
+
+
+def get_user():
+    """
+    gets user from url parameter, if nothing
+    is passed or user not in users, returns None
+    """
+    login_as = request.args.get("login_as", False)
+    if login_as:
+        user = users.get(int(login_as), False)
+        if user:
+            return user
+    return None
+
+@app.before_request
+def before_request():
+    """
+    use get_user to find a user if any,
+    and set it as a global on flask.g.user
+    """
+    g.user = get_user()
 
 
 class Config(object):
@@ -34,7 +63,7 @@ def index():
     GET root
     renders 2-index.html
     """
-    return render_template('4-index.html')
+    return render_template('5-index.html')
 
 
 if __name__ == "__main__":
